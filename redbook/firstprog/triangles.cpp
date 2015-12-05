@@ -29,9 +29,9 @@ void init(void) {
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
     ShaderInfo  shaders[] = {
-        { GL_VERTEX_SHADER, "triangles.vert" },
-        { GL_FRAGMENT_SHADER, "triangles.frag" },
-        { GL_NONE, NULL }
+	{ GL_VERTEX_SHADER, "triangles.vert" },
+	{ GL_FRAGMENT_SHADER, "triangles.frag" },
+	{ GL_NONE, NULL }
     };
 
     GLuint program = LoadShaders(*shaders);
@@ -47,29 +47,19 @@ void display(void) {
     glFlush();
 }
 
-int
-main(int argc, char** argv) {
+int main(int argc, char** argv) {
      glutInit(&argc, argv);
-     cout << "glutInit...[ OK ]" << endl;
      glutInitDisplayMode(GLUT_RGBA);
-     cout << "glutInitDisplayMode...[ OK ]" << endl;
      glutInitWindowSize(512, 512);
-     cout << "glutInitWindowSize...[ OK ]" << endl;
      glutInitContextVersion(4, 3);
-     cout << "glutInitContextVersion...[ OK ]" << endl;
      glutInitContextProfile(GLUT_CORE_PROFILE);
-     cout << "glutInitContextProfile...[ OK ]" << endl;
      glutCreateWindow(argv[0]);
-     cout << "glutCreateWindow...[ OK ]" << endl;
      glewExperimental = GL_TRUE;
      if (glewInit()) {
          cerr << "Unable to initialize GLEW ... exiting" << endl;
          exit(EXIT_FAILURE);
      }
      init();
-     cout << "init...[ OK ]" << endl;
      glutDisplayFunc(display);
-     cout << "glutDisplayFunc...[ OK ]" << endl;
      glutMainLoop();
-     cout << "glutMainLoop...[ OK ]" << endl;
 }

@@ -7,15 +7,14 @@
 // http://www.opengl.org/discussion_boards/showthread.php/180175-Redbook-8th-sample-code?p=1245842#post1245842
 // ---------------------------------------------------------------------------
 #include "LoadShader.h"
-	
-GLuint LoadShaders(ShaderInfo shaderInfo )
-{
+
+GLuint LoadShaders(ShaderInfo shaderInfo) {
 	GLuint program;
 	GLuint vertexShader;
 	GLuint fragmentShader;
 	vertexShader   = glCreateShader( GL_VERTEX_SHADER );	// create a vertex shader object
 	fragmentShader = glCreateShader( GL_FRAGMENT_SHADER );	// create a fragment shader object
-	
+
 	// load and compile vertex shader
 	string shaderProgramText;
 	const char* text = getShaderProgram( shaderInfo.vShaderFile, shaderProgramText );
@@ -23,8 +22,7 @@ GLuint LoadShaders(ShaderInfo shaderInfo )
 	glShaderSource( vertexShader, 1, &text, NULL );
 	glCompileShader( vertexShader );
 
-	for ( int i = 0; i < length; i++ )
-	{
+	for ( int i = 0; i < length; i++ ) {
 		cout << text[ i ];
 	}
 
@@ -77,18 +75,15 @@ GLuint LoadShaders(ShaderInfo shaderInfo )
 	return program;
 }
 
-const char* getShaderProgram( const char *filePath, string &shader )
-{
+const char* getShaderProgram( const char *filePath, string &shader ) {
 	fstream shaderFile( filePath, ios::in );
 
-	if ( shaderFile.is_open() )
-	{
+	if ( shaderFile.is_open() ) {
 		std::stringstream buffer;
 		buffer << shaderFile.rdbuf();
 		shader = buffer.str();
 		buffer.clear();
 	}
 	shaderFile.close();
-
 	return shader.c_str();
 }
