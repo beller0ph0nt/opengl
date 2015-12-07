@@ -5,41 +5,38 @@
 
 struct Program
 {
-    static GLuint Load( const char* vert, const char* geom, const char* frag )
-    {
+    static GLuint Load(const char* vert, const char* geom, const char* frag) {
         GLuint prog = glCreateProgram();
-        if( vert ) AttachShader( prog, GL_VERTEX_SHADER, vert );
-        if( geom ) AttachShader( prog, GL_GEOMETRY_SHADER, geom );
-        if( frag ) AttachShader( prog, GL_FRAGMENT_SHADER, frag );
-        glLinkProgram( prog );
-        CheckStatus( prog );
+        if (vert) AttachShader(prog, GL_VERTEX_SHADER, vert);
+        if (geom) AttachShader(prog, GL_GEOMETRY_SHADER, geom);
+        if (frag) AttachShader(prog, GL_FRAGMENT_SHADER, frag);
+        glLinkProgram(prog);
+        CheckStatus(prog);
         return prog;
     }
 
 private:
-    static void CheckStatus( GLuint obj )
-    {
+    static void CheckStatus(GLuint obj) {
         GLint status = GL_FALSE, len = 10;
-        if( glIsShader(obj) )   glGetShaderiv( obj, GL_COMPILE_STATUS, &status );
-        if( glIsProgram(obj) )  glGetProgramiv( obj, GL_LINK_STATUS, &status );
-        if( status == GL_TRUE ) return;
-        if( glIsShader(obj) )   glGetShaderiv( obj, GL_INFO_LOG_LENGTH, &len );
-        if( glIsProgram(obj) )  glGetProgramiv( obj, GL_INFO_LOG_LENGTH, &len );
-        std::vector< char > log( len, 'X' );
-        if( glIsShader(obj) )   glGetShaderInfoLog( obj, len, NULL, &log[0] );
-        if( glIsProgram(obj) )  glGetProgramInfoLog( obj, len, NULL, &log[0] );
+        if (glIsShader(obj))   glGetShaderiv(obj, GL_COMPILE_STATUS, &status);
+        if (glIsProgram(obj))  glGetProgramiv(obj, GL_LINK_STATUS, &status);
+        if (status == GL_TRUE) return;
+        if (glIsShader(obj))   glGetShaderiv(obj, GL_INFO_LOG_LENGTH, &len);
+        if (glIsProgram(obj))  glGetProgramiv(obj, GL_INFO_LOG_LENGTH, &len);
+        std::vector<char> log(len, 'X');
+        if (glIsShader(obj))   glGetShaderInfoLog(obj, len, NULL, &log[0]);
+        if (glIsProgram(obj))  glGetProgramInfoLog(obj, len, NULL, &log[0]);
         std::cerr << &log[0] << std::endl;
-        exit( -1 );
+        exit(-1);
     }
 
-    static void AttachShader( GLuint program, GLenum type, const char* src )
-    {
-        GLuint shader = glCreateShader( type );
-        glShaderSource( shader, 1, &src, NULL );
-        glCompileShader( shader );
-        CheckStatus( shader );
-        glAttachShader( program, shader );
-        glDeleteShader( shader );
+    static void AttachShader( GLuint program, GLenum type, const char* src ) {
+        GLuint shader = glCreateShader(type);
+        glShaderSource(shader, 1, &src, NULL);
+        glCompileShader(shader);
+        CheckStatus(shader);
+        glAttachShader(program, shader);
+        glDeleteShader(shader);
     }
 };
 #define GLSL(version, shader) "#version " #version "\n" #shader

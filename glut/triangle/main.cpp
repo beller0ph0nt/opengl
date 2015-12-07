@@ -14,7 +14,7 @@ const char *vsSrc =
 const char *fsSrc =
         "#version 120\n"
         "void main(void) {"
-        "   gl_FragColor = vec4(gl_FragCoord.x/640.0, gl_FragCoord.y/480.0, 0.5, 1.0);"
+        "   gl_FragColor = vec4(gl_FragCoord.x / 640.0, gl_FragCoord.y / 480.0, 0.5, 1.0);"
         "}";
 
 GLuint program;
@@ -48,7 +48,6 @@ GLuint CreateProgram() {
 void display() {
     glClearColor(0.0, 0.0, 0.0, 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
-    glUseProgram(program);
     glEnableVertexAttribArray(attribute_coord2d);
     GLfloat triangle_vertices[] = {
          0.0,  0.8,
@@ -63,6 +62,7 @@ void display() {
 
 void init() {
     program = CreateProgram();
+    glUseProgram(program);
     attribute_coord2d = glGetAttribLocation(program, "coord2d");
 }
 
