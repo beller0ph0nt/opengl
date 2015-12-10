@@ -4,35 +4,37 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include <vector>
+#include <map>
+#include <string>
 using namespace std;
 
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 
-struct ProgramPrivat {
-    GLuint vertShaderId;
-    //char *vertShaderSrc;
-    GLuint fragShaderId;
-    //char *fragShaderSrc;
-    GLuint programId;
-
-    ProgramPrivat():vertShaderId(0),
-        //vertShaderSrc(NULL),
-        fragShaderId(0),
-        //fragShaderSrc(NULL),
-        programId(0)
-    {}
+struct ShaderInfo {
+    GLuint type;
+    string fileName;
 };
 
 class Program {
-    ProgramPrivat *_priv;
+    struct ProgramPrivat {
+        map<GLuint, GLuint> shaders;
+        GLuint vertShaderId;
+        GLuint fragShaderId;
+        GLuint programId;
+
+        ProgramPrivat():programId(0) {}
+    } *_priv;
 public:
     Program();
     ~Program();
-    void loadVertShaderSrc(const char *fileName);
-    void loadFragShaderSrc(const char *fileName);
+    GLuint CreateProgram(vector<ShaderInfo> shaders);
+    GLuint CreateVertShader(const char *fileName);
+    GLuint CreateFragShader(const char *fileName);
 private:
-    const char* loadShader(const char *fileName);
+    GLuint CreateShader(GLuint type, const char *fileName);
+    const char* ReadShader(const char *fileName);
 };
 
 #endif // PROGRAM_H
