@@ -19,20 +19,16 @@ struct ShaderInfo {
 
 class Program {
     struct ProgramPrivat {
-        map<GLuint, GLuint> shaders;
-        GLuint vertShaderId;
-        GLuint fragShaderId;
+        map<GLuint, GLuint> shaderId;
         GLuint programId;
 
         ProgramPrivat():programId(0) {}
     } *_priv;
 public:
-    Program();
+    Program(vector<ShaderInfo> shaders);
     ~Program();
-    GLuint CreateProgram(vector<ShaderInfo> shaders);
-    GLuint CreateVertShader(const char *fileName);
-    GLuint CreateFragShader(const char *fileName);
 private:
+    GLuint CreateProgram(vector<ShaderInfo> shaders);
     GLuint CreateShader(GLuint type, const char *fileName);
     const char* ReadShader(const char *fileName);
 };

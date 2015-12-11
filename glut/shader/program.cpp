@@ -1,26 +1,30 @@
 #include "program.h"
 
-Program::Program() {
+Program::Program(vector<ShaderInfo> shaders) {
     _priv = new ProgramPrivat();
+    _priv->programId = CreateProgram(shaders);
 }
 
 Program::~Program() {
+    glDeleteProgram(_priv->programId);
     delete _priv;
 }
 
-GLuint CreateProgram(vector<ShaderInfo> shaders) {
-    for (vector<ShaderInfo>::iterator i = shaders.begin(); i == shaders.end(); i++) {
+GLuint Program::CreateProgram(vector<ShaderInfo> shaders) {
+    GLuint programId = glCreateProgram();
+    cerr << "program create [ " << (programId == 0) ? "ERROR" : "OK" << " ]" << endl;
+    for (int i = 0; i < shaders.size(); i++) {
+        _priv->shaderId[shaders[i].type] = CreateShader(shaders[i].type, shaders[i].fileName.c_str());
+        if (_priv->shaderId[shaders[i].type] == 0) {
+            return 0;
+        }
+        glAttachShader(programId, _priv->shaderId[shaders[i].type]);
     }
-}
-
-GLuint Program::CreateVertShader(const char *fileName) {
-    _priv->vertShaderId = CreateShader(GL_VERTEX_SHADER, fileName);
-    return _priv->vertShaderId;
-}
-
-GLuint Program::CreateFragShader(const char *fileName) {
-    _priv->fragShaderId = CreateShader(GL_FRAGMENT_SHADER, fileName);
-    return _priv->fragShaderId;
+    glLinkProgram(programId);
+    GLint status;
+    glGetProgramiv(programId, GL_LINK_STATUS, &status);
+    cerr << "program link [ " << (status != GL_TRUE) ? "ERROR" : "OK" << " ]" << endl;
+    return programId;
 }
 
 GLuint Program::CreateShader(GLuint type, const char *fileName) {
@@ -30,16 +34,13 @@ GLuint Program::CreateShader(GLuint type, const char *fileName) {
     glCompileShader(shaderId);
     GLint status;
     glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-    if (status != GL_TRUE) {
-        cerr << endl << "shader compilation [ ERROR ]" << endl;
-    }
+    cerr << "shader compile [ " << (status != GL_TRUE) ? "ERROR" : "OK" << " ]" << endl;
     GLsizei bufSize = 100;
     char *infoLog = new char[bufSize + 1];
-    infoLog[bufSize] = '\0';
     glGetShaderInfoLog(shaderId, bufSize, NULL, infoLog);
+    infoLog[bufSize] = '\0';
     cout << infoLog;
     delete[] infoLog;
-
     return shaderId;
 }
 
