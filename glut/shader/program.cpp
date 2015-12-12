@@ -1,53 +1,46 @@
 #include "program.h"
 
-Program::Program(vector<ShaderInfo> shaders) {
-    _priv = new ProgramPrivat();
-    _priv->programId = CreateProgram(shaders);
-}
-
 Program::~Program() {
     glDeleteProgram(_priv->programId);
     delete _priv;
 }
 
-GLuint Program::CreateProgram(vector<ShaderInfo> shaders) {
-    GLuint programId = glCreateProgram();
-    cerr << "program create [ " << (programId == 0) ? "ERROR" : "OK" << " ]" << endl;
+void Program::CreateProgram(vector<Shader> shaders) {
+    _priv->programId = glCreateProgram();
+    cerr << "program create [ " << ((_priv->programId == 0) ? "ERROR" : "OK") << " ]" << endl;
     for (int i = 0; i < shaders.size(); i++) {
-        _priv->shaderId[shaders[i].type] = CreateShader(shaders[i].type, shaders[i].fileName.c_str());
-        if (_priv->shaderId[shaders[i].type] == 0) {
-            return 0;
-        }
-        glAttachShader(programId, _priv->shaderId[shaders[i].type]);
+        CreateShader(shaders[i].type, shaders[i].fileName);
+        glAttachShader(_priv->programId, _priv->shaderId[shaders[i].type]);
     }
-    glLinkProgram(programId);
+    glLinkProgram(_priv->programId);
     GLint status;
-    glGetProgramiv(programId, GL_LINK_STATUS, &status);
-    cerr << "program link [ " << (status != GL_TRUE) ? "ERROR" : "OK" << " ]" << endl;
-    return programId;
+    glGetProgramiv(_priv->programId, GL_LINK_STATUS, &status);
+    cerr << "program link [ " << ((status != GL_TRUE) ? "ERROR" : "OK") << " ]" << endl;
+    glUseProgram(_priv->programId);
 }
 
-GLuint Program::CreateShader(GLuint type, const char *fileName) {
-    GLuint shaderId = glCreateShader(type);
-    const char *src = ReadShader(fileName);
-    glShaderSource(shaderId, 1, &src, NULL);
-    glCompileShader(shaderId);
+void Program::CreateShader(GLuint type, const string fileName) {
+    _priv->shaderId[type] = glCreateShader(type);
+    string src;
+    ReadShader(fileName, src);
+    const char *c_src = src.c_str();
+    glShaderSource(_priv->shaderId[type], 1, &c_src, NULL);
+    glCompileShader(_priv->shaderId[type]);
     GLint status;
-    glGetShaderiv(shaderId, GL_COMPILE_STATUS, &status);
-    cerr << "shader compile [ " << (status != GL_TRUE) ? "ERROR" : "OK" << " ]" << endl;
+    glGetShaderiv(_priv->shaderId[type], GL_COMPILE_STATUS, &status);
+    cerr << fileName << " compile [ " << ((status != GL_TRUE) ? "ERROR" : "OK") << " ]" << endl;
     GLsizei bufSize = 100;
-    char *infoLog = new char[bufSize + 1];
-    glGetShaderInfoLog(shaderId, bufSize, NULL, infoLog);
-    infoLog[bufSize] = '\0';
-    cout << infoLog;
+    char *infoLog = new char[bufSize];
+    glGetShaderInfoLog(_priv->shaderId[type], bufSize, NULL, infoLog);
+    cerr << infoLog;
     delete[] infoLog;
-    return shaderId;
 }
 
-const char* Program::ReadShader(const char *fileName) {
+void Program::ReadShader(const string fileName, string &src) const {
     fstream file(fileName, ios::in);
     stringstream buffer;
-    buffer << file.rdbuf();
+    if (file.is_open()) buffer << file.rdbuf();
     file.close();
-    return buffer.str().c_str();
+    src = buffer.str();
+    buffer.clear();
 }
