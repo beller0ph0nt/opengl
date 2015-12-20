@@ -38,9 +38,11 @@ void Program::CreateShader(GLuint type, const string fileName) {
 
 void Program::ReadShader(const string fileName, string &src) const {
     fstream file(fileName, ios::in);
-    stringstream buffer;
-    if (file.is_open()) buffer << file.rdbuf();
+    if (file.is_open()) {
+        stringstream buffer;
+        buffer << file.rdbuf();
+        src = buffer.str();
+        buffer.clear();
+    }
     file.close();
-    src = buffer.str();
-    buffer.clear();
 }
