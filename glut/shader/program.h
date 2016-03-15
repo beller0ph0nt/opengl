@@ -15,22 +15,27 @@ using namespace std;
 typedef GLuint ShdrId;
 typedef GLuint ShdrType;
 
-struct Shader {
+struct Shader
+{
     GLuint type;
     string fileName;
 };
 
-class Program {
-    struct ProgramPrivat {
+class Program
+{
+    struct ProgramPrivat
+    {
         map<ShdrType, ShdrId> shaderId;
         GLuint programId;
     } *_priv;
+
 public:
     Program() { _priv = new ProgramPrivat(); }
     Program(vector<Shader> shaders):Program() { CreateProgram(shaders); }
     ~Program();
     void CreateProgram(vector<Shader> shaders);
     GLuint getProgramId() const { return _priv->programId; }
+
 private:
     void CreateShader(GLuint type, const string fileName);
     void ReadShader(const string fileName, string &src) const;
