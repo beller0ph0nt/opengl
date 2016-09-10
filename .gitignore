@@ -1,2 +1,4 @@
 */build-*
 *.user
+*.o
+/glinfo/glinfo
