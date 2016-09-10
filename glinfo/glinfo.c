@@ -1,6 +1,6 @@
-#include <time.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <unistd.h>
 
 #include <GL/gl.h>
 #include <GL/glx.h>
@@ -54,8 +54,8 @@ w_glGetString(GLenum name)
 int
 main(int argc, char** argv)
 {
-#define TCP_DISPLAY_NAME        "localhost:0.0"
-#define DECNET_DISPLAY_NAME     "localhost::0.0"
+#define TCP_DISPLAY_NAME        "notebook/unix:0"
+#define DECNET_DISPLAY_NAME     "notebook/unix::0"
 #define DISPLAY_NAME            ":0"
 
     char* display_name = DISPLAY_NAME;
@@ -63,17 +63,6 @@ main(int argc, char** argv)
 	if (dpy == NULL)
 	{
         printf("XOpenDisplay failure!\n");
-        exit(EXIT_FAILURE);
-	}
-
-	int fbc_list_size;
-	GLXFBConfig* fbc_list = glXChooseFBConfig(dpy,
-	                                          DefaultScreen(dpy),
-	                                          0,
-	                                          &fbc_list_size);
-	if (fbc_list == NULL)
-	{
-        printf("glXChooseFBConfig failure!\n");
         exit(EXIT_FAILURE);
 	}
 
@@ -115,10 +104,41 @@ main(int argc, char** argv)
 	                           CWBorderPixel | CWColormap | CWEventMask,
 	                           &swa);
 //    XMapWindow(dpy, win);
+
+#ifdef GLX_ARB_create_context
+    #define GLX_CONTEXT_MAJOR_VERSION_ARB		0x2091
+    #define GLX_CONTEXT_MINOR_VERSION_ARB		0x2092
+
+    typedef GLXContext (*GLXCREATECONTEXTATTRIBSARBPROC)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
+
+    const GLubyte* func_name = (const GLubyte*) "glXCreateContextAttribsARB";
+    GLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB = \
+        (GLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddress(func_name);
+
+    int fbc_list_size;
+	GLXFBConfig* fbc_list = glXChooseFBConfig(dpy,
+	                                          DefaultScreen(dpy),
+	                                          0,
+	                                          &fbc_list_size);
+	if (fbc_list == NULL)
+	{
+        printf("glXChooseFBConfig failure!\n");
+        exit(EXIT_FAILURE);
+	}
+
+    const int attribs[] =
+    {
+		GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
+		GLX_CONTEXT_MINOR_VERSION_ARB, 0,
+		0
+    };
+
+    GLXContext ctx = glXCreateContextAttribsARB(dpy, *fbc_list, 0, True, attribs);
+#else
     GLXContext ctx = glXCreateContext(dpy, vi, 0, GL_TRUE);
+#endif // GLX_ARB_create_context
+
     glXMakeCurrent(dpy, win, ctx);
-
-
 
     printf("VENDOR:\n"
            "    %s\n"
@@ -149,6 +169,7 @@ main(int argc, char** argv)
     }
     printf("\n");
 
+
     ctx = glXGetCurrentContext();
 //    XUnmapWindow(dpy, win);
 	glXDestroyContext(dpy, ctx);
@@ -156,45 +177,3 @@ main(int argc, char** argv)
 
     return EXIT_SUCCESS;
 }
-
-
-
-
-//#define GLX_CONTEXT_MAJOR_VERSION_ARB		0x2091
-//#define GLX_CONTEXT_MINOR_VERSION_ARB		0x2092
-//typedef GLXContext (*GLXCREATECONTEXTATTRIBSARBPROC)(Display*, GLXFBConfig, GLXContext, Bool, const int*);
-//
-//
-//int main (int argc, char ** argv){
-//
-//	//oldstyle context:
-//	//	GLXContext ctx = glXCreateContext(dpy, vi, 0, GL_TRUE);
-//
-//	std::cout << "glXCreateContextAttribsARB " << (void*) glXGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB") << std::endl;
-//	GLXCREATECONTEXTATTRIBSARBPROC glXCreateContextAttribsARB =
-//        (GLXCREATECONTEXTATTRIBSARBPROC) glXGetProcAddress((const GLubyte*)"glXCreateContextAttribsARB");
-//
-//	int attribs[] = {
-//		GLX_CONTEXT_MAJOR_VERSION_ARB, 3,
-//		GLX_CONTEXT_MINOR_VERSION_ARB, 0,
-//		0};
-//
-//	GLXContext ctx = glXCreateContextAttribsARB(dpy, *fbc, 0, true, attribs);
-//
-//	glXMakeCurrent (dpy, win, ctx);
-//
-//		glClearColor (0, 0.5, 1, 1);
-//		glClear (GL_COLOR_BUFFER_BIT);
-//		glXSwapBuffers (dpy, win);
-//
-//		sleep(1);
-//
-//		glClearColor (1, 0.5, 0, 1);
-//		glClear (GL_COLOR_BUFFER_BIT);
-//		glXSwapBuffers (dpy, win);
-//
-//		sleep(1);
-//
-//	ctx = glXGetCurrentContext();
-//	glXDestroyContext(dpy, ctx);
-//	}

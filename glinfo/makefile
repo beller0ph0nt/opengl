@@ -1,6 +1,8 @@
 GLINFO_OBJ = glinfo.o
 
-CFLAGS = -Wall -g
+CFLAGS = -Wall \
+         -g \
+         -DGLX_ARB_create_context
 
 CC = $(CROSS_COMPILE)gcc
 
