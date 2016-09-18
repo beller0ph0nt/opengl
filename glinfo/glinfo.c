@@ -2,69 +2,18 @@
 #include <stdlib.h>
 #include <unistd.h>
 
-#include <GL/gl.h>
-#include <GL/glx.h>
+#include <wrap-gl.h>
+#include <wrap-glx.h>
 
-void
-w_glGetError()
-{
-    GLenum err = glGetError();
-    switch (err)
-    {
-    case GL_NO_ERROR:
-        printf("GL_NO_ERROR\n");
-        break;
-    case GL_INVALID_ENUM:
-        printf("GL_INVALID_ENUM\n");
-        break;
-    case GL_INVALID_VALUE:
-        printf("GL_INVALID_VALUE\n");
-        break;
-    case GL_INVALID_OPERATION:
-        printf("GL_INVALID_OPERATION\n");
-        break;
-    case GL_INVALID_FRAMEBUFFER_OPERATION:
-        printf("GL_INVALID_FRAMEBUFFER_OPERATION\n");
-        break;
-    case GL_OUT_OF_MEMORY:
-        printf("GL_OUT_OF_MEMORY\n");
-        break;
-    case GL_STACK_UNDERFLOW:
-        printf("GL_STACK_UNDERFLOW\n");
-        break;
-    case GL_STACK_OVERFLOW:
-        printf("GL_STACK_OVERFLOW\n");
-        break;
-    default:
-        printf("UNKNOWN ERROR\n");
-    }
-}
-
-
-const GLubyte*
-w_glGetString(GLenum name)
-{
-    const GLubyte* str = glGetString(name);
-    if (str == NULL)
-        w_glGetError();
-
-    return str;
-}
-
-int
-main(int argc, char** argv)
-{
 #define TCP_DISPLAY_NAME        "notebook/unix:0"
 #define DECNET_DISPLAY_NAME     "notebook/unix::0"
 #define DISPLAY_NAME            ":0"
 
+int
+main(int argc, char** argv)
+{
     char* display_name = DISPLAY_NAME;
-	Display* dpy = XOpenDisplay(display_name);
-	if (dpy == NULL)
-	{
-        printf("XOpenDisplay failure!\n");
-        exit(EXIT_FAILURE);
-	}
+	Display* dpy = w_XOpenDisplay(display_name);
 
     int attribute_list[] =
     {
@@ -76,12 +25,7 @@ main(int argc, char** argv)
         None
     };
 
-	XVisualInfo* vi = glXChooseVisual(dpy, DefaultScreen(dpy), attribute_list);
-	if (vi == NULL)
-	{
-        printf("glXChooseVisual failure!\n");
-        exit(EXIT_FAILURE);
-	}
+	XVisualInfo* vi = w_glXChooseVisual(dpy, DefaultScreen(dpy), attribute_list);
 
 	XSetWindowAttributes swa;
 	swa.colormap = XCreateColormap(dpy,
